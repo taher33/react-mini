@@ -1,4 +1,8 @@
 function Profile() {
+  const user = {
+    firstName: "helo",
+    lastName: "yello",
+  };
   return (
     <div>
       <img src="avatar.png" className="profile" />

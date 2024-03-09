@@ -1,11 +1,15 @@
-import { jsx as _jsx } from "react/jsx-runtime";
-import { jsxs as _jsxs } from "react/jsx-runtime";
+import { jsx as _jsx } from "../packages/jsx/jsx-runtime";
+import { jsxs as _jsxs } from "../packages/jsx/jsx-runtime";
 function Profile() {
-  return /*#__PURE__*/_jsxs("div", {
-    children: [/*#__PURE__*/_jsx("img", {
+  const user = {
+    firstName: "helo",
+    lastName: "yello"
+  };
+  return _jsxs("div", {
+    children: [_jsx("img", {
       src: "avatar.png",
       className: "profile"
-    }), /*#__PURE__*/_jsx("h3", {
+    }), _jsx("h3", {
       children: [user.firstName, user.lastName].join(" ")
     })]
   });
