@@ -159,3 +159,160 @@ the import doesn't have the "js" extension and that is causing 404 errors so for
 I use this script to run it `"dev": "npm run build && node server.js"` transpile the jsx and run the server
 
 ##ReactDOM
+
+let's create a folder inside packages and this would hold our ReactDOM implementation, react doesn't care about the UI so it can be used for anything, examples are react native react ink and the most known react dom
+
+reactDom cares about displaying to the browser so let's build that first
+
+```
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  )
+```
+
+this is from a react project so let's try to mimic that
+
+```
+const ReactDOM = {};
+
+function createRoot(element) {
+  return {
+    render: (root) => {
+      console.log(root);
+    },
+  };
+}
+
+
+ReactDOM.createRoot = createRoot;
+
+export default ReactDOM;
+
+```
+
+and let's import this inside our component
+
+```
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <App/>
+);
+```
+
+after doing this and running the program it would log undefined for the root but that's because our jsx handling functions don't return anything yet
+
+remember our transpiled code would look like this
+
+```
+ReactDOM.createRoot(document.getElementById("root")).render(
+  jsx(App,{})
+);
+```
+
+so let's fix that quickly
+
+```
+export function jsx(tag, props) {
+  return {
+    tag,
+    props,
+  };
+}
+export function jsxs(tag, props) {
+  return {
+    tag,
+    props,
+  };
+}
+```
+
+I don't do anything fancy for now I just return whatever I receive
+
+after running the code, the render function would log this
+
+```
+{
+  tag:App,
+  children:{}
+}
+```
+
+but this isn't very useful to us, the function components have their own implantation so for now let's ignore them, I just want to show something in the browser
+
+```
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <div>
+    text here <span>text here 222</span>
+  </div>
+);
+```
+
+this would be simpler to handle and we won't any logic for functional or class components
+
+the log for render function would become
+
+```
+{
+  "tag": "div",
+  "props": {
+      "children": [
+          "text here ",
+          {
+              "tag": "span",
+              "props": {
+                  "children": "text here 222"
+              }
+          }
+      ]
+  }
+}
+```
+
+this is more useful to us and we can use it to create dom elements in the browser, so let's add more logic in the render function
+
+```
+function createRoot(element) {
+  return {
+    render: (root) => {
+      let newEl;
+      if (!root.tag) {
+        newEl = document.createTextNode(root);
+      } else {
+        newEl = document.createElement(root.tag);
+      }
+      walkTree(root.props.children, newEl);
+      document.body.insertBefore(newEl, element);
+    },
+  };
+}
+
+function walkTree(children, parentEl) {
+  if (Array.isArray(children)) {
+    children.forEach((el) => {
+      if (!el.tag) {
+        //since no tag is given it's just text
+        parentEl.appendChild(document.createTextNode(el));
+      } else {
+        const newEl = document.createElement(el.tag);
+        walkTree(el.props.children, newEl);
+        parentEl.appendChild(newEl);
+      }
+    });
+    return;
+  }
+  if (!children.tag) {
+    //since no tag is given it's just text
+    parentEl.appendChild(document.createTextNode(children));
+  } else {
+    const newEl = document.createElement(children.tag);
+    walkTree(children.tag.props.children, newEl);
+    parentEl.appendChild(newEl);
+  }
+}
+
+```
+
+render now creates the root dom node then calls to walkTree function to traverse the children and creates the dom elements for each child and appends them to their correspondent parent recursively
+
+running the code, will put the dom elements inside our browser for us to see, and congrats we got stuff displaying.
