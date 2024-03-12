@@ -3,39 +3,45 @@ const ReactDOM = {};
 function createRoot(element) {
   return {
     render: (root) => {
-      console.log(root);
-      let newEl;
-      if (!root.tag) {
-        newEl = document.createTextNode(root);
-      } else {
-        newEl = document.createElement(root.tag);
-      }
-      walkTree(root.props.children, newEl);
+      const newEl = document.createElement("div");
+      walkTree(root, newEl);
+
       document.body.insertBefore(newEl, element);
     },
   };
 }
 
 function walkTree(children, parentEl) {
+  if (!children) return;
   if (Array.isArray(children)) {
     children.forEach((el) => {
       if (!el.tag) {
         //since no tag is given it's just text
         parentEl.appendChild(document.createTextNode(el));
       } else {
-        const newEl = document.createElement(el.tag);
-        walkTree(el.props.children, newEl);
-        parentEl.appendChild(newEl);
+        walkTree(el, parentEl);
       }
     });
     return;
   }
+
+  if (typeof children.tag === "function") {
+    walkTree(children.tag(children.props), parentEl);
+    return;
+  }
+
   if (!children.tag) {
     //since no tag is given it's just text
     parentEl.appendChild(document.createTextNode(children));
   } else {
     const newEl = document.createElement(children.tag);
-    walkTree(children.tag.props.children, newEl);
+
+    if (children.props.style) {
+      Object.keys(children.props.style).forEach((key) => {
+        newEl.style[key] = children.props.style[key];
+      });
+    }
+    walkTree(children.props.children, newEl);
     parentEl.appendChild(newEl);
   }
 }

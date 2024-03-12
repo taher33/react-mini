@@ -1,4 +1,5 @@
 import ReactDOM from "../packages/reactDom/reactDOM";
+import "./styles.css";
 function Profile() {
   const user = {
     firstName: "helo",
@@ -11,12 +12,21 @@ function Profile() {
       <div>
         hrllo<span>yeah</span>
       </div>
+      <Tag />
     </div>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <div>
-    text here <span>text here 222</span>
-  </div>
-);
+function Tag() {
+  return <Button>yasser zaki</Button>;
+}
+
+function Button({ children }) {
+  return (
+    <button className="hello" style={{ backgroundColor: "red" }}>
+      {children}
+    </button>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Profile />);

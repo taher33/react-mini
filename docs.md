@@ -316,3 +316,61 @@ function walkTree(children, parentEl) {
 render now creates the root dom node then calls to walkTree function to traverse the children and creates the dom elements for each child and appends them to their correspondent parent recursively
 
 running the code, will put the dom elements inside our browser for us to see, and congrats we got stuff displaying.
+
+# functional components
+
+in this section I'll try to handle functional components since they don't seem to be working for now
+
+one thing that you'll notice after logging the result from jsx function for functional components is that we get the function signature so we can just call it and it'll return it's children whatever they are and we can just shove them inside the walkTree for it to process, some changes need to be made tho
+
+let's ads logic to check if the tag is a function
+
+```
+if (typeof children.tag === "function") {
+    const functionCallRes = children.tag(children.props);
+    walkTree(functionCallRes.props.children, newEl);
+    return;
+}
+```
+
+we just call the function and it would return to us what we need, we use a the children.props for the function since it does expect it if the components receives props
+
+and let's updates the render function so it doesn't blow up if the root is a functional component
+
+```
+render: (root) => {
+  const newEl = document.createElement("div");
+  walkTree(root, newEl);
+
+  document.body.insertBefore(newEl, element);
+}
+```
+
+we can also add support for the `style` prop for our elements so we can add styles in the future, the code for it is pretty straight forward
+
+```
+if (children.props.style) {
+  Object.keys(children.props.style).forEach((key) => {
+    newEl.style[key] = children.props.style[key];
+  });
+}
+```
+
+this is for the case where we create a dom element, so here:
+
+```
+if (!children.tag) {
+  //since no tag is given it's just text
+  parentEl.appendChild(document.createTextNode(children));
+} else {
+  const newEl = document.createElement(children.tag);
+
+  if (children.props.style) {
+    Object.keys(children.props.style).forEach((key) => {
+      newEl.style[key] = children.props.style[key];
+    });
+  }
+  walkTree(children.props.children, newEl);
+  parentEl.appendChild(newEl);
+}
+```
