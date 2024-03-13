@@ -158,7 +158,7 @@ the import doesn't have the "js" extension and that is causing 404 errors so for
 
 I use this script to run it `"dev": "npm run build && node server.js"` transpile the jsx and run the server
 
-##ReactDOM
+## ReactDOM
 
 let's create a folder inside packages and this would hold our ReactDOM implementation, react doesn't care about the UI so it can be used for anything, examples are react native react ink and the most known react dom
 
@@ -374,3 +374,182 @@ if (!children.tag) {
   parentEl.appendChild(newEl);
 }
 ```
+
+## react package
+
+now that we got rendering to the screen, let's get to the real meat of react and try to implement some hooks
+
+# useState
+
+<!-- todo: update the dan abramove quote -->
+
+useState is the bread and butter of UI development, like dan said "UI is a function of state" or something like that I can't really remember
+
+ok what is the useState hook then?? well looking at the code for it `const [counter, setCounter] = React.useState(10);` it's just a function that takes the initial state and returns a tuple, first element is just the value for the state, second element is the function to update the state and cause a rerender
+
+so let's try to implement that:
+
+```
+function useState(initialState) {
+  let state = initialState;
+  function dispatch(newState) {
+    state = newState;
+    //rerender
+  }
+
+  const tuple = [initialState, dispatch];
+
+  return tuple;
+}
+```
+
+rerendering is just removing the old elements from the dom and inserting the new ones, insert part is done already in the render function now we just need to remove the dom elements and call the render function with the correct arguments and rerendering should be done. But Taher you might say react doesn't blow up the whole app for a state update and you are correct react does handle updates better by updating only the parts that are effected by the state change, this is exciting to implement but for now I just want to build a counter not a stripe website
+
+so let's see how we can do it:
+
+```
+function rerenderApp(element, root, appElement) {
+  return () => {
+    appElement.remove();
+    createRoot(element).render(root);
+  };
+}
+
+function createRoot(element) {
+  return {
+    render: (root) => {
+      const newEl = document.createElement("div");
+      walkTree(root, newEl);
+      document.body.insertBefore(newEl, element);
+
+      ReactDOM.rerender = rerenderApp(element, root, newEl);
+    },
+  };
+}
+```
+
+rerenderApp is a function that returns a function so that we can set the needed params for rendering and removing elements from the dom, so the parent element for our app is removed from dom and render just repaints to the screen, easy simple and quick to implement
+
+let's create a counter then in our elements
+
+```
+function Profile() {
+  const [counter, setCounter] = React.useState(10);
+
+  return (
+    <div>
+      <button
+        onClick={() => {
+          const newCount = counter + 1;
+          setCounter(newCount);
+        }}
+      >
+        change counter: {counter}
+      </button>
+    </div>
+  );
+}
+```
+
+looks like any counter ever written in react so let's run it
+
+<!-- todo: add an image maybe -->
+
+running this and clicking the change counter button won't change anything in the browser, and that's to be expected since the variables are just getting reset on every render, so we need to keep track of the states
+
+```
+const stateMap = {
+  states: [],
+  calls: -1,
+};
+
+function useState(initialState) {
+  const callId = ++stateMap.calls;
+
+  if (stateMap.states[callId]) {
+    return stateMap.states[callId];
+  }
+
+  function dispatch(newState) {
+    stateMap.states[callId][0] = newState;
+    //rerender
+    stateMap.calls = -1;
+    ReactDOM.rerender();
+  }
+
+  const tuple = [initialState, dispatch];
+  stateMap.states[callId] = tuple;
+
+  return tuple;
+}
+```
+
+so we are keeping track of two things, the states which is an array of tuples first element is the state value second is the update state function, calls is just to keep track of the index of the state that we are trying to get
+
+in first render the states array is empty so we fill it up by the tuples that we create and we keep track of them plus the callId
+
+after updating the state we call dispatch this will update the state with the correct callId then reset the calls number (will explain in a sec why) and rerender the whole app, rerendering the app will call useState again so it would `const callId = ++stateMap.calls;` so if we don't reset calls before rerender calls would be increasing endlessly and would just try to access a state that doesn't exist, so by resetting calls we would have access to the correct state
+
+so let's save and try to rerun the counter again
+
+nothing would happen cause I forgot to implement `onClick` in our react dom, sorry
+
+```
+if (children.props.onClick) {
+  newEl.addEventListener("click", children.props.onClick);
+}
+```
+
+we add this inside the case where we handle dom elements so the walk function would like this
+
+```
+function walkTree(children, parentEl) {
+  if (!children) return;
+  if (Array.isArray(children)) {
+    children.forEach((el) => {
+      if (!el.tag) {
+        //since no tag is given it's just text
+        parentEl.appendChild(document.createTextNode(el));
+      } else {
+        walkTree(el, parentEl);
+      }
+    });
+    return;
+  }
+
+  if (typeof children.tag === "function") {
+    walkTree(children.tag(children.props), parentEl);
+    return;
+  }
+
+  if (!children.tag) {
+    //since no tag is given it's just text
+    parentEl.appendChild(document.createTextNode(children));
+  } else {
+    const newEl = document.createElement(children.tag);
+
+    if (children.props.style) {
+      Object.keys(children.props.style).forEach((key) => {
+        newEl.style[key] = children.props.style[key];
+      });
+    }
+    if (children.props.onClick) {
+      newEl.addEventListener("click", children.props.onClick);
+    }
+    walkTree(children.props.children, newEl);
+    parentEl.appendChild(newEl);
+  }
+}
+```
+
+let's try running the counter again
+
+<!-- todo: add an image or a video -->
+
+and boom state is updating in the screen
+
+# useRef
+
+useRef is just useState without the returning the dispatch function so:
+
+# useEffect

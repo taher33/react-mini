@@ -1,10 +1,13 @@
 import ReactDOM from "../packages/reactDom/reactDOM";
-import "./styles.css";
+import React from "../packages/react/react";
+
 function Profile() {
+  const [counter, setCounter] = React.useState(10);
   const user = {
     firstName: "helo",
     lastName: "yello",
   };
+
   return (
     <div>
       <img src="avatar.png" className="profile" />
@@ -12,6 +15,14 @@ function Profile() {
       <div>
         hrllo<span>yeah</span>
       </div>
+      <button
+        onClick={() => {
+          const newCount = counter + 1;
+          setCounter(newCount);
+        }}
+      >
+        change counter: {counter}
+      </button>
       <Tag />
     </div>
   );

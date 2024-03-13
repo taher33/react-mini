@@ -1,12 +1,20 @@
 const ReactDOM = {};
 
+function rerenderApp(element, root, appElement) {
+  return () => {
+    appElement.remove();
+    createRoot(element).render(root);
+  };
+}
+
 function createRoot(element) {
   return {
     render: (root) => {
       const newEl = document.createElement("div");
       walkTree(root, newEl);
-
       document.body.insertBefore(newEl, element);
+
+      ReactDOM.rerender = rerenderApp(element, root, newEl);
     },
   };
 }
@@ -40,6 +48,9 @@ function walkTree(children, parentEl) {
       Object.keys(children.props.style).forEach((key) => {
         newEl.style[key] = children.props.style[key];
       });
+    }
+    if (children.props.onClick) {
+      newEl.addEventListener("click", children.props.onClick);
     }
     walkTree(children.props.children, newEl);
     parentEl.appendChild(newEl);

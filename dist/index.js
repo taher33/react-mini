@@ -1,8 +1,9 @@
 import ReactDOM from "../packages/reactDom/reactDOM";
-import "./styles.css";
+import React from "../packages/react/react";
 import { jsx as _jsx } from "../packages/jsx/jsx-runtime";
 import { jsxs as _jsxs } from "../packages/jsx/jsx-runtime";
 function Profile() {
+  const [counter, setCounter] = React.useState(10);
   const user = {
     firstName: "helo",
     lastName: "yello"
@@ -17,6 +18,12 @@ function Profile() {
       children: ["hrllo", _jsx("span", {
         children: "yeah"
       })]
+    }), _jsxs("button", {
+      onClick: () => {
+        const newCount = counter + 1;
+        setCounter(newCount);
+      },
+      children: ["change counter: ", counter]
     }), _jsx(Tag, {})]
   });
 }
