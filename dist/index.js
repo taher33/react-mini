@@ -4,16 +4,19 @@ import { jsx as _jsx } from "../packages/jsx/jsx-runtime";
 import { jsxs as _jsxs } from "../packages/jsx/jsx-runtime";
 function Profile() {
   const [counter, setCounter] = React.useState(10);
+  const [imageSrc, setImageSrc] = React.useState("https://images.dog.ceo/breeds/spaniel-welsh/n02102177_2766.jpg");
   const user = {
     firstName: "helo",
     lastName: "yello"
   };
   const ref = React.useRef(null);
-  console.log("ref", ref.current);
+  React.useEffect(() => {
+    fetch("https://dog.ceo/api/breeds/image/random").then(res => res.json().then(res => setImageSrc(res.message)));
+    console.log("this is called");
+  }, [counter]);
   return _jsxs("div", {
     children: [_jsx("img", {
-      src: "avatar.png",
-      className: "profile"
+      src: imageSrc
     }), _jsx("h3", {
       children: [user.firstName, user.lastName].join(" ")
     }), _jsxs("div", {

@@ -3,6 +3,9 @@ import React from "../packages/react/react";
 
 function Profile() {
   const [counter, setCounter] = React.useState(10);
+  const [imageSrc, setImageSrc] = React.useState(
+    "https://images.dog.ceo/breeds/spaniel-welsh/n02102177_2766.jpg"
+  );
   const user = {
     firstName: "helo",
     lastName: "yello",
@@ -10,9 +13,16 @@ function Profile() {
 
   const ref = React.useRef(null);
 
+  React.useEffect(() => {
+    fetch("https://dog.ceo/api/breeds/image/random").then((res) =>
+      res.json().then((res) => setImageSrc(res.message))
+    );
+    console.log("this is called");
+  }, [counter]);
+
   return (
     <div>
-      <img src="avatar.png" className="profile" />
+      <img src={imageSrc} />
       <h3>{[user.firstName, user.lastName].join(" ")}</h3>
       <div>
         hrllo<span>yeah</span>

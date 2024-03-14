@@ -576,3 +576,77 @@ console.log("ref", ref.current);
 the ref.current value will be preserved after rerenders, but no implementation of the ref prop for dom elements yet
 
 # useEffect
+
+this hook will be simple after implementing useState since it uses the same trick of keeping track of states (in this case dependency arrays) in an object that won't be destroyed after rerender
+
+so let's implement it:
+
+```
+React.useEffect(() => {
+  console.log("this is called");
+}, []);
+```
+
+this is a simple use case for useEffect and we can see that it takes two arguments, first one is a callback and second is the dependency array
+
+```
+function useEffect(cb, depArr) {
+  if (!depArr) throw new Error("you don't want this buddy");
+
+  const callId = ++depMap.calls;
+  const prevDeps = depMap.deps[callId];
+
+  if (
+    !prevDeps ||
+    depArr.length !== prevDeps.length ||
+    depArr.some((value, id) => {
+      return value !== prevDeps[id];
+    })
+  ) {
+    cb();
+    depMap.deps[callId] = depArr;
+  }
+}
+```
+
+you can tell that I'm a better software dev than the whole react team since I do tell you that you must specify the dep array for useEffect lol, I added that cause I thought it was funny that's all
+
+we keep track of the prev dep arrays in this object
+
+```
+const depMap = {
+  deps: [],
+  calls: -1,
+};
+```
+
+same way with the states tracking, we check if the prevDeps are there or not, if they are not then this is the first render and we should run the effect call back and we register the deps for the next renders, if there is any change the deps from the previous ones then we fire the call back and update the deps that we are tracking
+
+<!-- todo: still yet to do the cleanup function -->
+
+and there we have it, functioning useEffect hook so let's use it to do the only useful thing for this hook, fetching dog images
+
+```
+React.useEffect(() => {
+  fetch("https://dog.ceo/api/breeds/image/random").then((res) =>
+    res.json().then((res) => setImageSrc(res.message))
+  );
+  console.log("this is called");
+}, [counter]);
+```
+
+every time we change the counter we fetch a random dog image and put it inside the imageSrc state
+
+```
+<img src={imageSrc} />
+```
+
+we are setting the image src to the state, and update our ReactDOM logic so it sets the scr attribute for image tags
+
+```
+if (children.tag === "img" && children.props.src) {
+  newEl.src = children.props.src;
+}
+```
+
+and there we have it ever time we update the the counter we see a new dog image

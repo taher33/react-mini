@@ -44,6 +44,10 @@ function walkTree(children, parentEl) {
   } else {
     const newEl = document.createElement(children.tag);
 
+    if (children.tag === "img" && children.props.src) {
+      newEl.src = children.props.src;
+    }
+
     if (children.props.style) {
       Object.keys(children.props.style).forEach((key) => {
         newEl.style[key] = children.props.style[key];
