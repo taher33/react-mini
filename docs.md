@@ -550,6 +550,29 @@ and boom state is updating in the screen
 
 # useRef
 
-useRef is just useState without the returning the dispatch function so:
+useRef is just useState without the returning the dispatch function so we can reuse most of the logic
+
+```
+function useRef(initialState) {
+  const callId = ++stateMap.calls;
+
+  if (stateMap.states[callId]) {
+    return stateMap.states[callId];
+  }
+
+  stateMap.states[callId] = { current: initialState };
+
+  return stateMap.states[callId];
+}
+```
+
+I don't create the dispatch function for useRef since we don't need it, I set the state to an object and return that, this worked for me when updating the current it would actually update the states array and wouldn't do something weird it's the difference between returning just the value or a reference to the object
+
+```
+const ref = React.useRef(null);
+console.log("ref", ref.current);
+```
+
+the ref.current value will be preserved after rerenders, but no implementation of the ref prop for dom elements yet
 
 # useEffect

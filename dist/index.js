@@ -8,6 +8,8 @@ function Profile() {
     firstName: "helo",
     lastName: "yello"
   };
+  const ref = React.useRef(null);
+  console.log("ref", ref.current);
   return _jsxs("div", {
     children: [_jsx("img", {
       src: "avatar.png",
@@ -20,11 +22,12 @@ function Profile() {
       })]
     }), _jsxs("button", {
       onClick: () => {
+        ref.current = 12;
         const newCount = counter + 1;
         setCounter(newCount);
       },
       children: ["change counter: ", counter]
-    }), _jsx(Tag, {})]
+    }), "current doesn't change after rerender: ", ref.current ? ref.current : "", _jsx(Tag, {})]
   });
 }
 function Tag() {

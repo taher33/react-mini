@@ -21,12 +21,24 @@ function useState(initialState) {
     ReactDOM.rerender();
   }
 
-  const tuple = [initialState, dispatch];
-  stateMap.states[callId] = tuple;
+  stateMap.states[callId] = [initialState, dispatch];
 
-  return tuple;
+  return stateMap.states[callId];
+}
+
+function useRef(initialState) {
+  const callId = ++stateMap.calls;
+
+  if (stateMap.states[callId]) {
+    return stateMap.states[callId];
+  }
+
+  stateMap.states[callId] = { current: initialState };
+
+  return stateMap.states[callId];
 }
 
 React.useState = useState;
+React.useRef = useRef;
 
 export default React;

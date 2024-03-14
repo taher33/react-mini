@@ -8,6 +8,8 @@ function Profile() {
     lastName: "yello",
   };
 
+  const ref = React.useRef(null);
+
   return (
     <div>
       <img src="avatar.png" className="profile" />
@@ -17,12 +19,14 @@ function Profile() {
       </div>
       <button
         onClick={() => {
+          ref.current = 12;
           const newCount = counter + 1;
           setCounter(newCount);
         }}
       >
         change counter: {counter}
       </button>
+      current doesn't change after rerender: {ref.current ? ref.current : ""}
       <Tag />
     </div>
   );
