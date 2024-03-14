@@ -44,6 +44,11 @@ function walkTree(children, parentEl) {
   } else {
     const newEl = document.createElement(children.tag);
 
+    if (children.tag === "input") {
+      newEl.value = children.props.value ?? "";
+      newEl.oninput = children.props.onChange;
+    }
+
     if (children.tag === "img" && children.props.src) {
       newEl.src = children.props.src;
     }

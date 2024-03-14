@@ -650,3 +650,67 @@ if (children.tag === "img" && children.props.src) {
 ```
 
 and there we have it ever time we update the the counter we see a new dog image
+
+## let's build a todo app
+
+the best way to see if your library works is to build something with it, so let's build a quick todo app
+
+here is the implementation for the todo app
+
+```
+function Todo() {
+  const [todos, setTodos] = React.useState(["first todo"]);
+  const [inputVal, setInputVal] = React.useState("");
+  return (
+    <div>
+      <label title="todo title">
+        todo title
+        <input
+          value={inputVal}
+          onChange={(evt) => {
+            setInputVal(evt.target.value);
+          }}
+        />
+      </label>
+      <button
+        onClick={() => {
+          if (!inputVal) return;
+          setTodos([...todos, inputVal]);
+        }}
+      >
+        add todo
+      </button>
+      <ul>
+        {todos.map((el) => {
+          return <li>{el}</li>;
+        })}
+      </ul>
+    </div>
+  );
+}
+```
+
+we must add logic for the input tag element in ReactDOM
+
+```
+if (children.tag === "input") {
+  newEl.value = children.props.value ?? "";
+  newEl.oninput = children.props.onChange;
+}
+```
+
+![alt text](image.png)
+
+looks ugly but it's functional, typing into the input causes a bug, it goes out of focus on every character because i destroy the whole app on state change so we might have to create vdom and not rerender everything on state change, or just use a ref for the input val
+
+so it would be like
+
+```
+<input
+  onChange={(evt) => {
+    inputVal.current = evt.target.value;
+  }}
+/>
+```
+
+and now no bugs only features
