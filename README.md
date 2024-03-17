@@ -7,6 +7,7 @@ quick and simple implementation of react js and react dom packages, this is for 
 run `npm init` since we would need some deps later
 
 create scr folder, this is where we would create the code for react-mini
+
 inside it create an entry point for it index.js and write the same react code you usually write
 
 ```
