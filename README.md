@@ -69,7 +69,7 @@ we add some config for it in the package.json file
 
 add a script to run the babel code transformation in the package.json `"build": "babel src -d dist"`
 
-copy past the actual implementation for react-mini in the root of your project, so this file (packages)[https://github.com/taher33/react-mini/tree/main/packages]
+copy past the actual implementation for react-mini in the root of your project, so this file [packages](https://github.com/taher33/react-mini/tree/main/packages)
 
 create an html file and add a script and a div of id root that we can target
 
