@@ -18,7 +18,6 @@ const server = http.createServer((req, res) => {
   // Check if the requested file exists
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
-      console.log({ err, pathext: path.extname(filePath) });
       res.writeHead(404);
       res.end("File not found");
       return;
